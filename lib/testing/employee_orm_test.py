@@ -1,8 +1,9 @@
+# lib/testing/employee_orm_test.py
 from __init__ import CONN, CURSOR
 from employee import Employee
 from department import Department
-from faker import Faker
-import pytest
+from faker import Faker # type: ignore
+import pytest # type: ignore
 
 
 class TestEmployee:

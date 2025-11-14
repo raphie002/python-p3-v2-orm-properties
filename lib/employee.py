@@ -10,6 +10,7 @@ class Employee:
 
     def __init__(self, name, job_title, department_id, id=None):
         self.id = id
+        # Assign to property setters to run validation upon initialization
         self.name = name
         self.job_title = job_title
         self.department_id = department_id
@@ -19,6 +20,56 @@ class Employee:
             f"<Employee {self.id}: {self.name}, {self.job_title}, " +
             f"Department ID: {self.department_id}>"
         )
+    
+    # --- Property Methods ---
+
+    @property
+    def name(self):
+        """Getter for employee name."""
+        return self._name
+
+    @name.setter
+    def name(self, name_value):
+        """Setter for employee name with validation (string, non-empty)."""
+        if not isinstance(name_value, str):
+            raise ValueError("Employee name must be a string.")
+        if len(name_value) == 0:
+            raise ValueError("Employee name must not be empty.")
+        self._name = name_value
+
+    @property
+    def job_title(self):
+        """Getter for employee job title."""
+        return self._job_title
+
+    @job_title.setter
+    def job_title(self, job_title_value):
+        """Setter for employee job title with validation (string, non-empty)."""
+        if not isinstance(job_title_value, str):
+            raise ValueError("Job title must be a string.")
+        if len(job_title_value) == 0:
+            raise ValueError("Job title must not be empty.")
+        self._job_title = job_title_value
+        
+    @property
+    def department_id(self):
+        """Getter for employee department ID."""
+        return self._department_id
+
+    @department_id.setter
+    def department_id(self, department_id_value):
+        """Setter for employee department ID with validation (integer, exists in departments table)."""
+        if not isinstance(department_id_value, int):
+            raise ValueError("Department ID must be an integer.")
+        
+        # Foreign Key check: ensure a department with this ID exists
+        if Department.find_by_id(department_id_value) is None:
+             raise ValueError(f"Department ID {department_id_value} does not exist in the database.")
+             
+        self._department_id = department_id_value
+
+
+    # --- ORM Methods (Rest of your implementation) ---
 
     @classmethod
     def create_table(cls):
@@ -98,15 +149,19 @@ class Employee:
     def instance_from_db(cls, row):
         """Return an Employee object having the attribute values from the table row."""
 
-        # Check the dictionary for  existing instance using the row's primary key
+        # Check the dictionary for  existing instance using the row's primary key
         employee = cls.all.get(row[0])
         if employee:
             # ensure attributes match row values in case local instance was modified
-            employee.name = row[1]
-            employee.job_title = row[2]
-            employee.department_id = row[3]
+            # Note: We assign to the underlying attributes here to skip property validation,
+            # as the data is coming directly from a trusted database row.
+            employee._name = row[1]
+            employee._job_title = row[2]
+            employee._department_id = row[3]
         else:
             # not in dictionary, create new instance and add to dictionary
+            # Note: We assign to the underlying attributes here to skip property validation,
+            # as the data is coming directly from a trusted database row.
             employee = cls(row[1], row[2], row[3])
             employee.id = row[0]
             cls.all[employee.id] = employee

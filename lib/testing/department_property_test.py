@@ -1,5 +1,6 @@
+# lib/testing/departmenmt_property_test.py
 from department import Department
-import pytest
+import pytest # type: ignore
 
 
 class TestDepartmentProperties:

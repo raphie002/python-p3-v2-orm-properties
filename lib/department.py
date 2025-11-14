@@ -9,11 +9,44 @@ class Department:
 
     def __init__(self, name, location, id=None):
         self.id = id
+        # Assign to property setters to run validation upon initialization
         self.name = name
         self.location = location
 
     def __repr__(self):
         return f"<Department {self.id}: {self.name}, {self.location}>"
+
+    # --- Property Methods ---
+
+    @property
+    def name(self):
+        """Getter for department name."""
+        return self._name
+
+    @name.setter
+    def name(self, name_value):
+        """Setter for department name with validation (string, non-empty)."""
+        if not isinstance(name_value, str):
+            raise ValueError("Department name must be a string.")
+        if len(name_value) == 0:
+            raise ValueError("Department name must not be empty.")
+        self._name = name_value
+
+    @property
+    def location(self):
+        """Getter for department location."""
+        return self._location
+
+    @location.setter
+    def location(self, location_value):
+        """Setter for department location with validation (string, non-empty)."""
+        if not isinstance(location_value, str):
+            raise ValueError("Department location must be a string.")
+        if len(location_value) == 0:
+            raise ValueError("Department location must not be empty.")
+        self._location = location_value
+        
+    # --- ORM Methods (Rest of your implementation) ---
 
     @classmethod
     def create_table(cls):
@@ -98,6 +131,8 @@ class Department:
             department.location = row[2]
         else:
             # not in dictionary, create new instance and add to dictionary
+            # Note: We assign to the underlying attributes here to skip property validation,
+            # as the data is coming directly from a trusted database row.
             department = cls(row[1], row[2])
             department.id = row[0]
             cls.all[department.id] = department
